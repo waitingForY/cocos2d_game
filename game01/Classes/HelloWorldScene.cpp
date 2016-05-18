@@ -1,5 +1,6 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
+#include "GameScene.h"
 
 USING_NS_CC;
 
@@ -30,6 +31,14 @@ bool HelloWorld::init()
     
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+	
+	auto layer = Layer::create();
+	auto bg = Sprite::create("bg1.jpg");
+	layer->setPosition(visibleSize / 2);
+	layer->addChild(bg);
+	/*auto size=layer->getContentSize();
+	CCLOG("%d,%d", size.width, size.height);*/
+	addChild(layer);
 
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
@@ -55,7 +64,7 @@ bool HelloWorld::init()
     // add a label shows "Hello World"
     // create and initialize a label
     
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
+    auto label = Label::createWithTTF("touch to enter game", "fonts/Marker Felt.ttf", 24);
     
     // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,
@@ -63,6 +72,28 @@ bool HelloWorld::init()
 
     // add the label as a child to this layer
     this->addChild(label, 1);
+
+	//scheduleOnce([](float f){
+	//	Director::getInstance()->replaceScene(GameScene::createScene());
+	//},2,"test");
+
+
+	//创建一个单击事件的监听器
+
+
+
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = [label](Touch *t, Event *e){
+		if (label->getBoundingBox().containsPoint(t->getLocation()))
+		{
+			auto game_scene = GameScene::createScene();
+			auto transition = TransitionFadeBL::create(2, game_scene);
+			Director::getInstance()->replaceScene(transition);
+		}
+		return false;
+	};
+	//调用Director来捕获事件
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, label);
 
     // add "HelloWorld" splash screen"
     auto sprite = Sprite::create("HelloWorld.png");
